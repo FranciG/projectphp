@@ -19,10 +19,12 @@ class Itemcontroller extends Controller
      */
     public function number()
     {
-        $articles=$this->getDoctrine()->getRepository
-        (Article::class)->findAll();
+        // $articles=$this->getDoctrine()->getRepository
+        // (Article::class)->findAll();
+        $articles=['Article 1', 'Article 2'];
         return $this->render('items/index.html.twig', array ('articles'=>$articles));
-      //  $number = random_int(0, 100);
+      //El array de donde?? min 12:39 segundo video
+        //  $number = random_int(0, 100);
 
        // return new Response(
        //     '<html><body>Lucky number: '.$number.'</body></html>' );
