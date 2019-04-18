@@ -10,40 +10,80 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 //Bring the twig template
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+//For the form
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
+
 
 class Itemcontroller extends Controller
 {
     /**
-     * @Route("/")
+     * @Route("/", name="article_list")
      * @Method({"GET"})
      */
     public function number()
     {
-        // $articles=$this->getDoctrine()->getRepository
-        // (Article::class)->findAll();
-        $articles=['Article 1', 'Article 2'];
+        $articles=$this->getDoctrine()->getRepository
+         (Article::class)->findAll();
+     
         return $this->render('items/index.html.twig', array ('articles'=>$articles));
-      //El array de donde?? min 12:39 segundo video
-        //  $number = random_int(0, 100);
+    }
+       
+        /**
+         * @Route("/article/new", name="new_item")
+         * Method({"GET", "POST"})
+         */
+        public function new(Request $request) {
+            $article = new Article();
+            $form=$this->createFormBuilder($article)
+            ->add('title', TextType::class, array('attr'=>array('class'=>'form-control')))
+            ->add('body', TextareaType::class, array(
+            //The body is not required
+           'required'=> false,
+           'attr'=>array('class'=>'form-control')
+             ))
+             ->add('save', SubmitType::class, array(
+                'label' => 'Create',
+                'attr' => array('class' => 'btn btn-primary mt-3')
+              ))
+              //----------------------------------it is not saving---------------------
+              ->getForm();
+               
 
-       // return new Response(
-       //     '<html><body>Lucky number: '.$number.'</body></html>' );
-       }
-    // /**
-    //  * @Route("/article/save")
-    //  */
-    // //To use doctrine to save an article an entity manager is needed
-    // public function save(){
-    //     $entityManager=$this->getDoctrine()->getManager();
-    //     $article=new Article();
-    //     //Remember to write the method names from Article.php
-    //     $article->setTitle('Article two');
-    //     $article->setbody('The body of two');
-    //     //Persist says that we want to eventually save $article to the database
-    //     $entityManager->persist($article);
-    //     //To save it flush is needed
-    //     $entityManager->flush();
+              $form->handleRequest($request);
 
-    //     return new Response ('Saved with id'.$article->returnId());
-    // }
+              //Checking if the form is been submited
+              if($form->isSubmitted() && $form->isValid()) {
+                $article = $form->getData();
+                //-------------error may be above
+                //If is valid, we add the item to the database
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($article);
+                $entityManager->flush();
+                //After,we return to the articles list
+                return $this->redirectToRoute('article_list');
+              }
+        
+//or articles???
+              return $this->render('items/create.html.twig', array(
+                'form' => $form->createView()
+              ));
+        }
+        
+ /**
+         * @Route("/article/{id}", name="article_show")
+         */
+
+         //Instead of findall, find it is used, passing the id as a parameter to find.
+        
+       
+         public function show($id) {
+            $article=$this->getDoctrine()->getRepository(Article::class)->find($id);
+            return $this->render('items/find.html.twig', array ('article'=>$article));
+          }
+ 
+       
+  
 }

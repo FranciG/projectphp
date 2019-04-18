@@ -26,16 +26,16 @@ class Article
     private $body;
 //Since above properties are private, and they can't be accessed ourside
 //the class, getters an setters have to be created
-public function returnId()
+public function getId()
 {
     return $this->id;
 }
-public function returnTitle()
+public function getTitle()
 {
     return $this->title;
 }
 
-public function returnBody()
+public function getBody()
 {
     return $this->body;
 } 
