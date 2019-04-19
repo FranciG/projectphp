@@ -41,7 +41,7 @@ class Itemcontroller extends Controller
             ->add('title', TextType::class, array('attr'=>array('class'=>'form-control')))
             ->add('body', TextareaType::class, array(
             //The body is not required
-           'required'=> false,
+           'required'=> true,
            'attr'=>array('class'=>'form-control')
              ))
              ->add('save', SubmitType::class, array(
@@ -57,7 +57,7 @@ class Itemcontroller extends Controller
               //Checking if the form is been submited
               if($form->isSubmitted() && $form->isValid()) {
                 $article = $form->getData();
-                //-------------error may be above
+                
                 //If is valid, we add the item to the database
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($article);
@@ -66,13 +66,15 @@ class Itemcontroller extends Controller
                 return $this->redirectToRoute('article_list');
               }
         
-//or articles???
+
               return $this->render('items/create.html.twig', array(
                 'form' => $form->createView()
               ));
         }
+
+
         
- /**
+         /**
          * @Route("/article/{id}", name="article_show")
          */
 
@@ -83,7 +85,60 @@ class Itemcontroller extends Controller
             $article=$this->getDoctrine()->getRepository(Article::class)->find($id);
             return $this->render('items/find.html.twig', array ('article'=>$article));
           }
- 
-       
-  
+ //Delete route
+     /**
+      * @Route("/article/delete/{id}")
+      *@Method ({"DELETE"})
+      */  
+        public function delete(Request $request, $id) {
+          $article=$this->getDoctrine()->getRepository(Article::class)->find($id);
+          $entityManager = $this->getDoctrine()->getManager();
+          $entityManager->remove($article);
+          $entityManager->flush();
+          $response= new Response();
+          $response->send();
+        }
+
+   /**
+         * @Route("/article/edit/{id}", name="edit_item")
+         * Method({"GET", "POST"})
+         */
+        public function edit(Request $request, $id) {
+          $article = new Article();
+          //First the article is found
+          $article=$this->getDoctrine()->getRepository(Article::class)->find($id);
+          //Then it is pased to the form builder
+          $form=$this->createFormBuilder($article)
+          ->add('title', TextType::class, array('attr'=>array('class'=>'form-control')))
+          ->add('body', TextareaType::class, array(
+          //The body is required
+         'required'=> true,
+         'attr'=>array('class'=>'form-control')
+           ))
+           ->add('save', SubmitType::class, array(
+              'label' => 'Modify',
+              'attr' => array('class' => 'btn btn-primary mt-3')
+            ))
+            ->getForm();
+             
+
+            $form->handleRequest($request);
+
+            //Checking if the form is been submited
+            if($form->isSubmitted() && $form->isValid()) {
+             // $article = $form->getData();
+              
+              //If is valid, we add the item to the database
+              $entityManager = $this->getDoctrine()->getManager();
+             // $entityManager->persist($article);
+              $entityManager->flush();
+              //After,we return to the articles list
+              return $this->redirectToRoute('article_list');
+            }
+      
+
+            return $this->render('items/create.html.twig', array(
+              'form' => $form->createView()
+            ));
+      }
 }
