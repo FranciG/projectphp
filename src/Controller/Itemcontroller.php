@@ -18,16 +18,19 @@ use Symfony\Component\HttpFoundation\Request;
 
 
 class Itemcontroller extends Controller
+//Setting up anotations with the routes and the type of requests the route can make
+//so routes.yaml is not used
 {
     /**
      * @Route("/", name="article_list")
      * @Method({"GET"})
      */
-    public function number()
+    public function main()
     {
+      //Doctrine is used to interact with the databse
         $articles=$this->getDoctrine()->getRepository
          (Article::class)->findAll();
-     
+     //Rendering the template
         return $this->render('items/index.html.twig', array ('articles'=>$articles));
     }
        
@@ -40,7 +43,7 @@ class Itemcontroller extends Controller
             $form=$this->createFormBuilder($article)
             ->add('title', TextType::class, array('attr'=>array('class'=>'form-control')))
             ->add('body', TextareaType::class, array(
-            //The body is not required
+            //The body is required
            'required'=> true,
            'attr'=>array('class'=>'form-control')
              ))
@@ -48,7 +51,6 @@ class Itemcontroller extends Controller
                 'label' => 'Create',
                 'attr' => array('class' => 'btn btn-primary mt-3')
               ))
-              //----------------------------------it is not saving---------------------
               ->getForm();
                
 
